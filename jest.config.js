@@ -30,9 +30,14 @@ const customJestConfig = {
 // This won't count for the retry to avoid duplicated test being reported twice
 // - which means our test trace will report test results for the flaky test as failed without retry.
 const shouldEnableTestTrace =
-  process.env.DATADOG_API_KEY &&
-  process.env.DATADOG_TRACE_NEXTJS_TEST &&
+  !!process.env.DATADOG_API_KEY &&
+  !!process.env.DATADOG_TRACE_NEXTJS_TEST &&
   !process.env.IS_RETRY
+
+console.log('-------------', {
+  shouldEnableTestTrace,
+  retry: process.env.IS_RETRY
+})
 
 if (shouldEnableTestTrace) {
   if (!customJestConfig.reporters) {
@@ -48,6 +53,7 @@ if (shouldEnableTestTrace) {
     'jest-junit',
     {
       outputDirectory,
+      suiteNameTemplate: `${process.env.TURBOPACK ? 'turbo-':''}${process.env.EXPERIMENTAL_TURBOPACK ? 'experimentalTurbo-': ''}${process.env.NEXT_TEST_MODE}-{filename}-{title}`,
       reportTestSuiteErrors: 'true',
       uniqueOutputName: 'true',
       outputName: 'nextjs-test-junit',
